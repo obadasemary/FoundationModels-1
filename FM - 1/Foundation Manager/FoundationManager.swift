@@ -45,43 +45,4 @@ final class FoundationManager {
         }
         return isModelAvailable
     }
-    
-    func getResponse(from prompt: Prompt, session: LanguageModelSession) async -> String{
-//                return try! await session.respond(to: prompt).content
-        var responseText = ""
-        do {
-            responseText =  try await session.respond(to: prompt).content
-        } catch let error as LanguageModelSession.GenerationError {
-            switch error {
-//            case .exceededContextWindowSize(let context):
-//                
-//            case .assetsUnavailable(let context):
-//                
-            case .guardrailViolation(let context):
-                responseText = "Guardrail violation: \(context.debugDescription)\n"
-//            case .unsupportedGuide(let context):
-//                
-//            case .unsupportedLanguageOrLocale(let context):
-//                
-            case .decodingFailure(let context):
-                responseText = "Decoding failure: \(context.debugDescription)\n"
-//            case .rateLimited(let context):
-//                
-//            case .concurrentRequests(let context):
-//                
-//            case .refusal(let refusal, let context):
-            default:
-                responseText = "Other error: \(error.localizedDescription)\n"
-            }
-            if let failureReason = error.failureReason {
-                responseText += failureReason + "\n"
-            }
-            if let recovertSuggestion = error.recoverySuggestion {
-                responseText += recovertSuggestion
-            }
-        } catch {
-            return error.localizedDescription
-        }
-        return responseText
-    }
 }

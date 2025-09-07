@@ -27,7 +27,7 @@ struct TheBasics: View {
                 .textFieldStyle(.roundedBorder)
             Button("Answer") {
                 response = ""
-                var responseText = ""
+                var responseError = ""
                 let session = LanguageModelSession()
                 Task {
                     do {
@@ -39,28 +39,28 @@ struct TheBasics: View {
             //            case .assetsUnavailable(let context):
             //
                         case .guardrailViolation(let context):
-                            responseText = "Guardrail violation: \(context.debugDescription)\n"
+                            responseError = "Guardrail violation: \(context.debugDescription)\n"
             //            case .unsupportedGuide(let context):
             //
             //            case .unsupportedLanguageOrLocale(let context):
             //
                         case .decodingFailure(let context):
-                            responseText = "Decoding failure: \(context.debugDescription)\n"
+                            responseError = "Decoding failure: \(context.debugDescription)\n"
             //            case .rateLimited(let context):
             //
             //            case .concurrentRequests(let context):
             //
             //            case .refusal(let refusal, let context):
                         default:
-                            responseText = "Other error: \(error.localizedDescription)\n"
+                            responseError = "Other error: \(error.localizedDescription)\n"
                         }
                         if let failureReason = error.failureReason {
-                            responseText += failureReason + "\n"
+                            responseError += failureReason + "\n"
                         }
                         if let recovertSuggestion = error.recoverySuggestion {
-                            responseText += recovertSuggestion
+                            responseError += recovertSuggestion
                         }
-                        response = responseText
+                        response = responseError
                     } catch {
                         response =  error.localizedDescription
                     }

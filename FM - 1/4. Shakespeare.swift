@@ -24,7 +24,7 @@ struct Shakespeare: View {
     @FocusState private var isFocused:Bool
     @State private var topic = ""
     @State private var session = LanguageModelSession()
-    @State private var result = ""
+    @State private var response = ""
     var body: some View {
         Group {
             if manager.isModelAvailable {
@@ -35,22 +35,37 @@ struct Shakespeare: View {
                     Button("Create Poem") {
                         isFocused = false
                         guard manager.checkIsAvailable() else { return }
-                        result = ""
+                        response = ""
+                        var responseError = ""
                         Task {
                             let  prompt = Prompt("Create a two verse about \(topic) in the style of William Shakespeare.  Do not return any preamble.  Just return the two verse poem.")
                             do {
-                                let response = try await session.respond(to: prompt)
-                                result = response.content
-                                
+                                response = try await session.respond(to: prompt).content
+                            } catch let error as LanguageModelSession.GenerationError {
+                                switch error {
+                                case .guardrailViolation(let context):
+                                    responseError = "Guardrail violation: \(context.debugDescription)\n"
+                                case .decodingFailure(let context):
+                                    responseError = "Decoding failure: \(context.debugDescription)\n"
+                                default:
+                                    responseError = "Other error: \(error.localizedDescription)\n"
+                                }
+                                if let failureReason = error.failureReason {
+                                    responseError += failureReason + "\n"
+                                }
+                                if let recovertSuggestion = error.recoverySuggestion {
+                                    responseError += recovertSuggestion
+                                }
+                                response = responseError
                             } catch {
-                                print(error.localizedDescription)
+                                response = error.localizedDescription
                             }
                         }
                     }
                     .disabled(topic.isEmpty)
                     .buttonStyle(.borderedProminent)
                     ScrollView{
-                        Text(LocalizedStringKey(result))
+                        Text(LocalizedStringKey(response))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding()
                     }
