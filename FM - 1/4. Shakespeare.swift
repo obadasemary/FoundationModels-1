@@ -19,87 +19,23 @@ import SwiftUI
 import FoundationModels
 
 struct Shakespeare: View {
-    @Environment(FoundationManager.self) var manager
-    @Environment(\.scenePhase) private var scenePhase
-    @FocusState private var isFocused:Bool
-    @State private var topic = ""
-    @State private var session = LanguageModelSession()
-    @State private var response = ""
+    @Environment(NavigationManger.self) var navManager
     var body: some View {
-        Group {
-            if manager.isModelAvailable {
-                VStack  {
-                    TextField("Enter poem topic", text: $topic)
-                        .textFieldStyle(.roundedBorder)
-                        .focused($isFocused)
-                    Button("Create Poem") {
-                        isFocused = false
-                        guard manager.checkIsAvailable() else { return }
-                        response = ""
-                        var responseError = ""
-                        Task {
-                            let  prompt = Prompt("Create a two verse about \(topic) in the style of William Shakespeare.  Do not return any preamble.  Just return the two verse poem.")
-                            do {
-                                response = try await session.respond(to: prompt).content
-                            } catch let error as LanguageModelSession.GenerationError {
-                                switch error {
-                                case .guardrailViolation(let context):
-                                    responseError = "Guardrail violation: \(context.debugDescription)\n"
-                                case .decodingFailure(let context):
-                                    responseError = "Decoding failure: \(context.debugDescription)\n"
-                                default:
-                                    responseError = "Other error: \(error.localizedDescription)\n"
-                                }
-                                if let failureReason = error.failureReason {
-                                    responseError += failureReason + "\n"
-                                }
-                                if let recovertSuggestion = error.recoverySuggestion {
-                                    responseError += recovertSuggestion
-                                }
-                                response = responseError
-                            } catch {
-                                response = error.localizedDescription
-                            }
-                        }
-                    }
-                    .disabled(topic.isEmpty)
-                    .buttonStyle(.borderedProminent)
-                    ScrollView{
-                        Text(LocalizedStringKey(response))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding()
-                    }
-                    .font(.title)
-                    .scrollBounceBehavior(.basedOnSize)
-                    .background(.quinary)
-                    .clipShape(.rect(cornerRadius: 20))
-                    .overlay {
-                        if session.isResponding {
-                            VStack {
-                                ProgressView()
-                                Text("Thinking....").font(.largeTitle)
-                            }
-                        }
-                    }
-                }
-                .padding()
-            } else {
-                IntelligenceUnavailableView()
+        NavigationStack {
+            VStack{
+               Text("Shakespearean Poem")
             }
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                manager.checkIsAvailable()
-                print("Model is available:", manager.isModelAvailable)
-            }
-        }
-        .onAppear {
-            session.prewarm()
+            .padding()
+            .navigationTitle(navManager.selectedTab.rawValue)
         }
     }
 }
 
 #Preview {
+    @Previewable @State var navManager = NavigationManger()
     Shakespeare()
-        .environment(FoundationManager())
+        .environment(navManager)
+        .onAppear {
+            navManager.selectedTab = .fullExample
+        }
 }

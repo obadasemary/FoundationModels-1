@@ -19,38 +19,23 @@ import SwiftUI
 import FoundationModels
 
 struct IsModelAvailable: View {
-    @State private var notAvailableReason = ""
+    @Environment(NavigationManger.self) var navManager
     var body: some View {
-        VStack{
-            if notAvailableReason.isEmpty {
-                Text("Apple Intelligence enabled!")
-            } else {
-                ContentUnavailableView("Apple Intelligence Not available", systemImage: "apple.intelligence", description: Text(notAvailableReason))
+        NavigationStack {
+            VStack{
+                Text("Checking if Model is available")
             }
-        }
-        .padding()
-        .navigationTitle("Model Status")
-        .onAppear {
-            checkIsAvailable()
-        }
-    }
-    
-    func checkIsAvailable() {
-        switch SystemLanguageModel.default.availability {
-        case .available:
-            notAvailableReason = ""
-        case .unavailable(.deviceNotEligible):
-            notAvailableReason = "Upgrade to use Apple Intelligence"
-        case .unavailable(.appleIntelligenceNotEnabled):
-            notAvailableReason = "Enable Apple Intelligence in System Settings."
-        case .unavailable(.modelNotReady):
-            notAvailableReason = "Model not ready.  Downloding or temporarily unavailable. Please wait, ensure sufficient battery and Wi-Fi."
-        case.unavailable(let unknownReason):
-            notAvailableReason = "Model unavailable: \(String(describing: unknownReason))"
+            .padding()
+            .navigationTitle(navManager.selectedTab.rawValue)
         }
     }
 }
 
 #Preview {
+    @Previewable @State var navManager = NavigationManger()
     IsModelAvailable()
+        .environment(navManager)
+        .onAppear {
+            navManager.selectedTab = .isAvailable
+        }
 }

@@ -18,21 +18,24 @@
 import SwiftUI
 
 struct ObservableIsModelAvailable: View {
-    @Environment(FoundationManager.self) var manager
+    @Environment(NavigationManger.self) var navManager
     var body: some View {
-        VStack{
-            if manager.isModelAvailable {
-                Text("Apple Intelligence enabled!")
-            } else {
-                ContentUnavailableView("AI Not available", systemImage: "apple.intelligence", description: Text(manager.notAvailableReason))
+        NavigationStack {
+            VStack{
+               Text("Reusable Observable Service")
             }
+            .padding()
+            .navigationTitle(navManager.selectedTab.rawValue)
         }
-        .padding()
-        .navigationTitle("Model Status")
     }
 }
 
 #Preview {
+    @Previewable @State var navManager = NavigationManger()
     ObservableIsModelAvailable()
-        .environment(FoundationManager())
+        .environment(navManager)
+        .onAppear {
+            navManager.selectedTab = .isAvailable
+        }
 }
+

@@ -1,7 +1,7 @@
 //
 //----------------------------------------------
 // Original project: FM - 1
-// by  Stewart Lynch on 2025-08-31
+// by  Stewart Lynch on 2025-09-08
 //
 // Follow me on Mastodon: https://iosdev.space/@StewartLynch
 // Follow me on Threads: https://www.threads.net/@stewartlynch
@@ -17,23 +17,7 @@
 
 import SwiftUI
 
-struct IntelligenceUnavailableView: View {
-    @Environment(FoundationManager.self) var checker
-    var body: some View {
-        ContentUnavailableView {
-            Label("AI Not available", systemImage: "siri")
-        } description: {
-            Text(checker.notAvailableReason)
-        } actions: {
-            Button("Try again") {
-                checker.checkIsAvailable()
-            }
-            .buttonStyle(.bordered)
-        }
-    }
-}
-
-#Preview {
-    IntelligenceUnavailableView()
-        .environment(FoundationManager())
+@Observable
+class NavigationManger {
+    var selectedTab = MyTabs.allCases.first!
 }

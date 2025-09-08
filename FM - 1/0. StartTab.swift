@@ -40,10 +40,10 @@ enum MyTabs: String, CaseIterable, View {
 
 
 struct StartTab: View {
-    @State private var selectedTab = MyTabs.basics
+    @Environment(NavigationManger.self) var navManager
     var body: some View {
-        NavigationStack {
-            TabView(selection: $selectedTab) {
+        @Bindable var navManager = navManager
+        TabView(selection: $navManager.selectedTab) {
                 ForEach(MyTabs.allCases.indices, id: \.self) { index in
                     let tab = MyTabs.allCases[index]
                     Tab(
@@ -53,15 +53,13 @@ struct StartTab: View {
                             tab
                         }
                 }
-            }
-            .navigationTitle(selectedTab.rawValue)
         }
     }
 }
 
 #Preview {
     StartTab()
-        .environment(FoundationManager())
+        .environment(NavigationManger())
 }
 
 

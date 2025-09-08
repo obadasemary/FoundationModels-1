@@ -19,11 +19,11 @@ import SwiftUI
 
 @main
 struct AI_Mastery_P1App: App {
-    @State private var checker = FoundationManager()
+    @State private var navManager = NavigationManger()
     var body: some Scene {
         WindowGroup {
             StartTab()
-                .environment(checker)
+                .environment(navManager)
         }
     }
 }
