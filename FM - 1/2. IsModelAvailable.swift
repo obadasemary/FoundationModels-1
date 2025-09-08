@@ -16,7 +16,6 @@
 
 
 import SwiftUI
-import FoundationModels
 
 struct IsModelAvailable: View {
     @Environment(NavigationManger.self) var navManager

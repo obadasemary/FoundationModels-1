@@ -21,7 +21,6 @@ enum MyTabs: String, CaseIterable, View {
     case basics = "Basics"
     case isAvailable = "Availability"
     case observableAvailability = "Observed Availability"
-    case fullExample = "Shakespeare"
     
     var id: Self { self }
     var body: some View {
@@ -32,8 +31,6 @@ enum MyTabs: String, CaseIterable, View {
             IsModelAvailable()
         case .observableAvailability:
             ObservableIsModelAvailable()
-        case .fullExample:
-            Shakespeare()
         }
     }
 }
