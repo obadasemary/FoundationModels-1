@@ -18,14 +18,27 @@
 import SwiftUI
 
 struct ObservableIsModelAvailable: View {
+    
     @Environment(NavigationManger.self) var navManager
+    @Environment(FoundationModelsService.self) var foundationModelsService
+    @Environment(\.scenePhase) private var scenePhase
+    
     var body: some View {
         NavigationStack {
             VStack{
-               Text("Reusable Observable Service")
+                if foundationModelsService.isModelAvailable {
+                    Text("Reusable Observable Service")
+                } else {
+                    AIUnavailableView()
+                }
             }
             .padding()
             .navigationTitle(navManager.selectedTab.rawValue)
+            .onChange(of: scenePhase) { _, newValue in
+                if newValue == .active {
+                    foundationModelsService.checkIsAvailable()
+                }
+            }
         }
     }
 }
@@ -34,6 +47,7 @@ struct ObservableIsModelAvailable: View {
     @Previewable @State var navManager = NavigationManger()
     ObservableIsModelAvailable()
         .environment(navManager)
+        .environment(FoundationModelsService())
         .onAppear {
             navManager.selectedTab = .isAvailable
         }
