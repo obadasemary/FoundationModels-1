@@ -16,13 +16,63 @@
 
 
 import SwiftUI
+import FoundationModels
 
 struct TheBasics: View {
     @Environment(NavigationManger.self) var navManager
+    
+    @State private var promt: String = ""
+    @State private var reply: String = ""
+    
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Basic Foundation Model Request")
+                TextField("Question", text: $promt)
+                    .textFieldStyle(.roundedBorder)
+                
+                Button("Answer") {
+                    reply = ""
+                    let session = LanguageModelSession()
+                    Task {
+                        Task {
+                            do {
+                                reply = try await session
+                                    .respond(to: promt)
+                                    .content
+                            } catch let error as LanguageModelSession.GenerationError {
+                                switch error {
+                                case .guardrailViolation(let context):
+                                    reply = "Guadrail violation: \(context.debugDescription)"
+                                case .decodingFailure(let context):
+                                    reply = "Decoding Failure: \(context.debugDescription)"
+                                case .rateLimited(let context):
+                                    reply = "Rate Limited exceeded: \(context.debugDescription)"
+                                default:
+                                    reply = "Other error: \(error.localizedDescription)"
+                                }
+                                
+                                if let failureReason = error.failureReason {
+                                    reply += "\nFailure Reason: \(failureReason)"
+                                }
+                                if let helpAnchor = error.helpAnchor {
+                                    reply += "\nHelp Anchor: \(helpAnchor)"
+                                }
+                                if let recoverySuggestion = error.recoverySuggestion {
+                                    reply += "\nRecovery Suggestion: \(recoverySuggestion)"
+                                }
+                            } catch {
+                                reply = error.localizedDescription
+                            }
+                        }
+                        
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(promt.isEmpty)
+                
+                ScrollView {
+                    Text(reply)
+                }
             }
             .padding()
             .navigationTitle(navManager.selectedTab.rawValue)
