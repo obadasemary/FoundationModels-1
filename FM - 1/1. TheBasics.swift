@@ -19,6 +19,7 @@ import SwiftUI
 import FoundationModels
 
 struct TheBasics: View {
+    
     @Environment(NavigationManger.self) var navManager
     
     @State private var prompt: String = ""
