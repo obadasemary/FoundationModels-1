@@ -21,13 +21,13 @@ import FoundationModels
 struct TheBasics: View {
     @Environment(NavigationManger.self) var navManager
     
-    @State private var promt: String = ""
+    @State private var prompt: String = ""
     @State private var reply: String = ""
     
     var body: some View {
         NavigationStack {
             VStack {
-                TextField("Question", text: $promt)
+                TextField("Question", text: $prompt)
                     .textFieldStyle(.roundedBorder)
                 
                 Button("Answer") {
@@ -37,7 +37,7 @@ struct TheBasics: View {
                         Task {
                             do {
                                 reply = try await session
-                                    .respond(to: promt)
+                                    .respond(to: prompt)
                                     .content
                             } catch let error as LanguageModelSession.GenerationError {
                                 switch error {
@@ -68,7 +68,7 @@ struct TheBasics: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(promt.isEmpty)
+                .disabled(prompt.isEmpty)
                 
                 ScrollView {
                     Text(reply)
